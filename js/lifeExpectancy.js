@@ -4,7 +4,7 @@
 let mapData = [];
 
 let vbWidth = 1200,
-    vbHeight = 800;
+    vbHeight = 650;
 
 // These colours map to a 3x3 grid of terciles for each of the two data items, life expectancy & social grade
 let colourMapping = [['#574249', '#627f8c', '#64acbe'],
@@ -142,6 +142,11 @@ function resetScatter(){
         .style("stroke", '#333')
         .style('stroke-width', 1);
     return scatterPoints;
+}
+
+function reset(){
+    resetMap();
+    resetScatter();
 }
 
 

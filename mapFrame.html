@@ -33,36 +33,17 @@
     <style>
         html, body{
             height: 100%;
-            /*width: 100%;*/
+            width: 100%;
+            padding: 0; 
+            margin:0;
             overflow-y: scroll;
+            overflow-x: hidden;
         }
         #mapCont{
             width: 100%;
-            height: 80%;
-            float: left;
+            /* height: 80%; */
+            /* float: left; */
         }
-        #chartCont{
-            width: 65%;
-            height: 100%;
-            float: right;
-        }
-        #info{
-            width:100%;
-            height: 30%;
-        }
-        #charts{
-            width: 100%;
-            height: 70%;
-        }
-        #frameCont{
-            width: 100%;
-            height: 90%;
-        }
-        #lineChart{
-            width: 100%;
-            height: 100%;
-        }
-
         #map{
             pointer-events: all;
         }
@@ -81,48 +62,55 @@
             margin-right: 50%;
         }
 
+
+
         #reset{
-            float:right;
+             float:right; 
+             margin-right: 50px;
         }
     </style>
 
 	
     </head>
     <body>
-		<div id='title'>
-            <h1>Does your social class affect how long you live?</h1>
-        </div>
-        <div id='description'>
-            <p>
-                In my last post I investigated life expectancy in different parts of the UK. Here, I've taken the same life expectancy data
-                and combined it with data on social grade.<br>A person's social class is determined by the type of job they do. 
-                People with managerial occupations fall into the highest social grades (A & B), whilst the lowest social grades
-                are occupied by semi- and unskilled manual workers (D), and the non-working (E).<br>
-                It's quite intuitive that a person's occupation, and therefore social grade could affect the quality of that person's life
-                but I was intersted to discover if social grade also affects a person's life expectancy.<br>
-                My hypothesis was that people in higher social grades would have a higher life expectancy. Unfortunately, the data seems to 
-                indicate that this is the case. That's not to say with certainty that CEOs always live longer than Bricklayers, nor that when
-                they do, their occupation is the main or sole factor. Rather a person's occupation is likely to reflect many other aspects of that person's
-                life, with income almost certainly being a major factor.<br><br>
-                So, on to the map. For each region in the UK, I've coloured that region based on two factors:<br>
-                <ul>
-                    <li>The life expectancy of people in that region</li>
-                    <li>The percentage of people in that region who are in social grades A & B</li>
-                </ul>
-                This means that the map actually operates on a dual colour scale, which is neither common nor conventional. To help you understand
-                the situation in each region, I've connected each region on the map to its counterpart point on the scatterplot; simply click on any point
-                in either chart to see the connection between these two points.<br>
-                I've also provided an interactive legend below the scatterplot which you can click to see a short description of the
-                life expectancy and social grade situation in that region.<br>
-                Thanks for taking a look. 
-            </p>
-        </div>
-        <div>
-            <button id='showhide'>Hide</button>
-        </div>
-		<div id="mapCont"></div>
-        <div>
-            <button id='reset' onclick='reset()'>Reset</button>
+        <div id="page">
+            <div id='title'>
+                <h1>Does your social class affect how long you live?</h1>
+            </div>
+            <div id='description'>
+                <p>
+                    In my last post I investigated life expectancy in different parts of the UK. Here, I've taken the same life expectancy data
+                    and combined it with data on social grade.<br>A person's social class is determined by the type of job they do. 
+                    People with managerial occupations fall into the highest social grades (A & B), whilst the lowest social grades
+                    are occupied by semi- and unskilled manual workers (D), and the non-working (E).<br>
+                    It's quite intuitive that a person's occupation, and therefore social grade could affect the quality of that person's life
+                    but I was intersted to discover if social grade also affects a person's life expectancy.<br>
+                    My hypothesis was that people in higher social grades would have a higher life expectancy. Unfortunately, the data seems to 
+                    indicate that this is the case. That's not to say with certainty that CEOs always live longer than Bricklayers, nor that when
+                    they do, their occupation is the main or sole factor. Rather a person's occupation is likely to reflect many other aspects of that person's
+                    life, with income almost certainly being a major factor.<br><br>
+                    So, on to the map. For each region in the UK, I've coloured that region based on two factors:<br>
+                    <ul>
+                        <li>The life expectancy of people in that region</li>
+                        <li>The percentage of people in that region who are in social grades A & B</li>
+                    </ul>
+                    This means that the map actually operates on a dual colour scale, which is neither common nor conventional. To help you understand
+                    the situation in each region, I've connected each region on the map to its counterpart point on the scatterplot; simply click on any point
+                    in either chart to see the connection between these two points.<br>
+                    I've also provided an interactive legend below the scatterplot which you can click to see a short description of the
+                    life expectancy and social grade situation in that region.<br>
+                    Thanks for taking a look. 
+                </p>
+            </div>
+            <div>
+                <button id='showhide'>Hide Introduction</button>
+            </div>
+            <div id="mapCont">
+                
+            </div>
+            <div id="buttonCont">
+                <button id='reset' onclick='reset()'>Reset</button>
+            </div>
         </div>
         
 
@@ -140,13 +128,13 @@
                 $('#description').slideUp(600, function(){
                $(this).hide();
             });
-                $('#showhide').html('Show')
+                $('#showhide').html('Show Introduction')
             }
             else{
                 $('#description').slideDown(600, function(){
                $(this).show();
             });
-                $('#showhide').html('Hide')
+                $('#showhide').html('Hide Introduction')
             }
             })
         });
