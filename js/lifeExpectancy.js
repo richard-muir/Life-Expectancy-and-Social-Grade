@@ -325,21 +325,23 @@ function updateMap() {
 }
 
 function makeRegionMap(regionData) {
-    let cornwall = d3.set(['E06000052', 'E06000053']),  // Cornwall & hackney are being annoying
+    let //cornwall = d3.set(['E06000052', 'E06000053']),  // Cornwall & hackney are being annoying
         hackney = d3.set(['E09000001', 'E09000012']);
 
     // Draws the regions
     svg1.selectAll(".subunit")
         .data(topojson.feature(regionData, regionData.objects.lad).features.filter(function(d) {
+            console.log(d.id, d.properties.LAD13NM)
             // Cornwall & hackney are being annoying, need to exclude and draw later. Also no scotland.
-            return !cornwall.has(d.id) && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
+            //return !cornwall.has(d.id) && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
+            return d.id != 'E06000053' && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
         }))
         .enter().append("path")
         .attr("class", function(d) {return `subunit ${d.id[0]} ${d.id.slice(0, 3)}`;})
         .attr("d", path)
         .attr("stroke", "#333")
         .attr("stroke-width", 0.75);
-    combineRegions('E06000052', 'Cornwall and Isles of Scilly', cornwall, regionData);
+    //combineRegions('E06000052', 'Cornwall and Isles of Scilly', cornwall, regionData);
     combineRegions('E09000001', 'Hackney and City of London', hackney, regionData);
     updateMap();
 }
@@ -452,7 +454,7 @@ function updateDescription(data, src){
         2 : 'higher than the UK average'
     }
     // Update the text
-    let replacementText = `In ${name} men can expect to live, on average, ${lifeExpectancyM} years, and women ${lifeExpectancyF}. ${(socGradeAB*100).toFixed(1)}% of people here are in Social Grades A & B which is ${lookup[socGradeTercile]}`
+    let replacementText = `In ${name} women can expect to live, on average, ${lifeExpectancyF} years, and men ${lifeExpectancyM}. ${(socGradeAB*100).toFixed(1)}% of people here are in Social Grades A & B which is ${lookup[socGradeTercile]}`
     d3.select('#DataDescription')
         .text(replacementText)
         .call(wrap, 340)
