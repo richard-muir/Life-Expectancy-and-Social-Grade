@@ -1,20 +1,17 @@
 // GLOBALS
-
-// This should be global for
-let mapData = [];
-
-let vbWidth = 1300,
-    vbHeight = 50;
-
-let scatterWidth = 500,
+// This should be global
+let mapData = [],
+    vbWidth = 1300,
+    vbHeight = 50,
+    scatterWidth = 500,
     scatterHeight = 500,
     scatterMargin = {
         t : 50,
         b : 30,
         l : 30,
         r : 0
-    };
-let scatterMoveX = 650,
+    },
+    scatterMoveX = 650,
     scatterMoveY = 50,
     legendMoveX = 650,
     legendMoveY = 600;
@@ -40,39 +37,39 @@ let FemLifeExpTerciles = {
 
 // Will use this to create the four lines which divide the scatterplot into terciles for each variable
 let scatterLines = [
-        {
-            expStart : 83.8,
-            expEnd : 83.8,
-            ABStart : 0,
-            ABEnd : 0.48119795003203075
-        },
-        {
-            expStart : 82.7,
-            expEnd : 82.7,
-            ABStart : 0,
-            ABEnd : 0.48119795003203075
-        },
-        {
-            expStart : 0,
-            expEnd : 100,
-            ABStart : 0.1836532540132367,
-            ABEnd : 0.1836532540132367
-        },
-        {
-            expStart : 0,
-            expEnd : 100,
-            ABStart : 0.25183186623084475,
-            ABEnd : 0.25183186623084475
-        }
-    ];
+    {
+        expStart : 83.8,
+        expEnd : 83.8,
+        ABStart : 0,
+        ABEnd : 0.48119795003203075
+    },
+    {
+        expStart : 82.7,
+        expEnd : 82.7,
+        ABStart : 0,
+        ABEnd : 0.48119795003203075
+    },
+    {
+        expStart : 0,
+        expEnd : 100,
+        ABStart : 0.1836532540132367,
+        ABEnd : 0.1836532540132367
+    },
+    {
+        expStart : 0,
+        expEnd : 100,
+        ABStart : 0.25183186623084475,
+        ABEnd : 0.25183186623084475
+    }
+];
 
-    
+// Changing these let us change the variables which are represented on the map
+ // Might want to allow user to switch later on
+let state2 = 'F-AB',
+    yData = 'Female Life Expectancy 2010-2012',
+    xData = 'Approximated social grade AB';
 
-
-
-let state2 = 'F-AB';
-
-var svg = d3.select("#mapCont").append("svg")
+let svg = d3.select("#mapCont").append("svg")
     .attr("width", "100%")
     .attr("height", "100%")
     .attr("id", "svg")
@@ -102,10 +99,7 @@ let legendExplanation = {
     },
 }
 
-
-
 // HELPER FUNCTIONS
-
 function wrap(text, width) {
   text.each(function() {
     var text = d3.select(this),
@@ -132,7 +126,6 @@ function wrap(text, width) {
     }
   });
 }
-
 
 function titleCase (sentence) {
     return sentence.split(' ').map(
@@ -177,7 +170,6 @@ function reset(){
     resetScatter();
     resetLegend();
 }
-
 
 function legendSelection(){
     let exp = Number(this.id.substring(3, 4)) + 1, // Strip out the terciles
@@ -264,7 +256,6 @@ function connectElements(d, src, dest, srcTranslate, destTranslate){
         .attr('id', 'linking-line')
 }
 
-
 // LOAD THE DATA & CREATE ELEMENTS
 queue()
     .defer(d3.json, "data/lifeExp/uk.json") // UK Country shapefile
@@ -279,17 +270,13 @@ queue()
         createDescription();
     });
 
-
-// Make the map
+// Make the map projection & path
 let projection = d3.geoAlbers()
     .center([7.0, 53.5])
     .rotate([4.4, 0])
     .parallels([50, 60])
     .scale(6000),
     path = d3.geoPath().projection(projection);
-
-
-
 
 function makeCountryMap(countryData) {
     // Draw the countries Ireland, NIreland & Scotland in grey
@@ -322,33 +309,6 @@ function combineRegions(id, name, set, regionData){
         .attr("stroke-width", 0.75);
     }
 
-function makeRegionMap(regionData) {
-    let cornwall = d3.set(['E06000052', 'E06000053']),  // Cornwall & hackney are being annoying
-        hackney = d3.set(['E09000001', 'E09000012']);
-
-    // Draws the regions
-    svg1.selectAll(".subunit")
-        .data(topojson.feature(regionData, regionData.objects.lad).features.filter(function(d) {
-            console.log(d.id, d.properties.LAD13NM, d.properties.LAD13CD)
-            // Cornwall & hackney are being annoying, need to exclude and draw later. Also no scotland.
-            return !cornwall.has(d.id) && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
-
-            
-        }))
-        .enter().append("path")
-        .attr("class", function(d) {return `subunit ${d.id[0]} ${d.id.slice(0, 3)}`;})
-        .attr("d", path)
-        .attr("stroke", "#333")
-        .attr("stroke-width", 0.75);
-    combineRegions('E06000052', 'Cornwall and Isles of Scilly', cornwall, regionData);
-    combineRegions('E09000001', 'Hackney and City of London', hackney, regionData);
-
-    updateMap();
-
-}
-
-
-
 function updateMap() {
     // Adds all the interation & fills
     svg1.selectAll(".subunit")
@@ -362,8 +322,27 @@ function updateMap() {
         .on("mouseout", function(d) {
             d3.select(this).style("stroke", '#333').style("stroke-width", 0.75)})
         .on("click", function(d){connectElements(d, '.subunit', '.dot',[0,0], [scatterMoveX, scatterMoveY]);});
-    }
+}
 
+function makeRegionMap(regionData) {
+    let cornwall = d3.set(['E06000052', 'E06000053']),  // Cornwall & hackney are being annoying
+        hackney = d3.set(['E09000001', 'E09000012']);
+
+    // Draws the regions
+    svg1.selectAll(".subunit")
+        .data(topojson.feature(regionData, regionData.objects.lad).features.filter(function(d) {
+            // Cornwall & hackney are being annoying, need to exclude and draw later. Also no scotland.
+            return !cornwall.has(d.id) && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
+        }))
+        .enter().append("path")
+        .attr("class", function(d) {return `subunit ${d.id[0]} ${d.id.slice(0, 3)}`;})
+        .attr("d", path)
+        .attr("stroke", "#333")
+        .attr("stroke-width", 0.75);
+    combineRegions('E06000052', 'Cornwall and Isles of Scilly', cornwall, regionData);
+    combineRegions('E09000001', 'Hackney and City of London', hackney, regionData);
+    updateMap();
+}
 
 function createLegend() {
     let legendWidth = 100,
@@ -418,14 +397,11 @@ function createLegend() {
                 .on('click', legendSelection);
             }
         }
-
-
-    // Rect to fill with colour to better highlight what has been selected
+    // Make the reset button. Tried doing this as HTML, but didn't feel like it was part of the viz
     textG.append("text")
             .text("Reset")
             .style('font-family', 'Droid Sans')
             .attr("transform", `translate(${282}, ${110})`);
-
     let resetButton = textG.append('rect')
         .attr("transform", `translate(${250}, ${95})`)
         .attr("height", 19)
@@ -439,9 +415,9 @@ function createLegend() {
     }
 
 function createDescription(){
+    // Sets up the text object near the map which provides a description of each region
     let descCont = svg.append("g")
         .attr('transform', `translate(${ 260 },${ 30 })`);
-    
     descCont.append("text")
         .attr('id', 'DataDescription')
         .text(initialDescriptionText)
@@ -451,14 +427,16 @@ function createDescription(){
 
 
 function updateDescription(data, src){
+    // If the person clicked on the scatter, we can use the data there
     let dataPoint;
     if (src === '.dot'){
         dataPoint = data;
     }
+    // Otherwise we need to use the mapdata to filter the scatter points
     else{
         dataPoint = d3.selectAll('.dot').filter(function(e){return e.LAD13CD === data.id}).data()[0]
     }
-
+    // Get the different attributes to put into the text
     let id = dataPoint.id,
         name = titleCase(dataPoint.LAD13NM),
         lifeExpectancyF = dataPoint['Female Life Expectancy 2010-2012'],
@@ -467,27 +445,20 @@ function updateDescription(data, src){
         maleTercile = dataPoint.MaleLifeExp,
         femaleTercile = dataPoint.FemaleLifeExp, 
         socGradeTercile = dataPoint.SocialGradeAB;
-
-
+    // Turn the tercile numbers into something meaningful
     let lookup = {
         0 : 'lower than the UK average',
         1 : 'about the same as the rest of the UK',
         2 : 'higher than the UK average'
     }
-
+    // Update the text
     let replacementText = `In ${name} men can expect to live, on average, ${lifeExpectancyM} years, and women ${lifeExpectancyF}. ${(socGradeAB*100).toFixed(1)}% of people here are in Social Grades A & B which is ${lookup[socGradeTercile]}`
     d3.select('#DataDescription')
         .text(replacementText)
         .call(wrap, 340)
-
 }
 
-
-
-
 function createScatter(data){
-    let yData = 'Female Life Expectancy 2010-2012',
-        xData = 'Approximated social grade AB'
     // Scatter G
     let scatter = svg.append("g")
         .attr("id", "scatter")
@@ -507,9 +478,23 @@ function createScatter(data){
     let xAxis = scatter.append("g")
         .attr("transform", `translate(${0}, ${scatterHeight - scatterMargin.t - scatterMargin.b})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.format(".0%")));
+    //xaxis title
+    scatter.append('text')
+        .attr('transform', `translate(${scatterWidth /2},${scatterHeight - scatterMargin.t - scatterMargin.b + 30})`)
+        .style('text-anchor', 'middle')
+        .text("Percentage of people in social grades A & B")
+        .style('font-family', 'Droid Sans')
+        .style('font-size', '0.75em')
     let yAxis = scatter.append("g")
         .attr("transform", `translate(${0}, ${0})`)
         .call(d3.axisLeft(yScale));
+    //yaxis title
+    scatter.append('text')
+        .attr('transform', `rotate(-90) translate(${-(scatterHeight - scatterMargin.t - scatterMargin.b)/2},${-30})`)
+        .style('text-anchor', 'middle')
+        .text("Female life expectancy")
+        .style('font-family', 'Droid Sans')
+        .style('font-size', '0.75em')
 
     // Add the lines which delineate the different terciles
     scatterLines.forEach(function(line){
@@ -528,13 +513,11 @@ function createScatter(data){
         2 : 0,
     }
     let arrayOf3 = [0,1,2];
-    // Loop through the number of terciles
+    // Loop through the number of terciles, adding a rect for each
     for (soc in arrayOf3){
         for (exp in arrayOf3){
             soc = arrayOf3[soc];
             exp = arrayOf3[exp];
-            // exp = Number(exp)
-            //console.log(yScaleFemLifeExpTerciles[exp] - FemLifeExpTerciles[exp + 1])
             scatter.append('rect')
                 .attr('x', xScale(SocialGradeABTerciles[soc]))
                 .attr('y', yScale(FemLifeExpTerciles[exp]))
@@ -543,11 +526,8 @@ function createScatter(data){
                 .style('fill', colourMapping[mapping[exp]][soc])
                 .style('opacity', 0.1)
                 .attr('class', `Exp: ${exp}, Soc: ${soc}`)
-
         }
     }
-
-
     let points = scatter.selectAll(".dot")
         .data(data)
       .enter().append("circle")
@@ -570,6 +550,5 @@ function createScatter(data){
             return yScale(d['Female Life Expectancy 2010-2012']);
         })
         .on("click",  function(d){connectElements(d, '.dot', '.subunit', [scatterMoveX, scatterMoveY], [0,0]);});
-
 }
 
