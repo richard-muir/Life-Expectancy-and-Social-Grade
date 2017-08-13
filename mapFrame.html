@@ -39,13 +39,36 @@
             overflow-y: scroll;
             overflow-x: hidden;
         }
-        #mapCont{
+        #page{
             width: 100%;
-            /* height: 80%; */
-            /* float: left; */
+            height: 100%;
+            
         }
+
+        #container{
+            text-align: center;
+            height: 75%; 
+        }
+
+        #mapCont{
+            width: 80%;
+            height: 100%;
+             
+        }
+
+        .center {
+            margin: auto;
+            width: 60%;
+            padding: 10px;
+            display: inline-block;
+        }
+
         #map{
             pointer-events: all;
+        }
+
+        #svg{
+            display: block;
         }
 
         #description{
@@ -58,15 +81,14 @@
             font-family: 'Droid Sans';
         }
         #showhide{
-            margin-left: 48%;
+            margin-left: 40%;
             margin-right: 50%;
+            width: 200px;
         }
 
-
-
         #reset{
-             float:right; 
-             margin-right: 50px;
+             float:right;
+             margin-right: 10.5%;
         }
     </style>
 
@@ -105,9 +127,10 @@
             <div>
                 <button id='showhide'>Hide Introduction</button>
             </div>
-            <div id="mapCont">
-                
+            <div id="container">
+                <div id="mapCont" class="center"></div>
             </div>
+            
             <div id="buttonCont">
                 <button id='reset' onclick='reset()'>Reset</button>
             </div>

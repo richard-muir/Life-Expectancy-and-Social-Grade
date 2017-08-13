@@ -3,8 +3,21 @@
 // This should be global for
 let mapData = [];
 
-let vbWidth = 1200,
-    vbHeight = 650;
+let vbWidth = 1300,
+    vbHeight = 50;
+
+let scatterWidth = 500,
+    scatterHeight = 500,
+    scatterMargin = {
+        t : 50,
+        b : 30,
+        l : 30,
+        r : 0
+    };
+let scatterMoveX = 650,
+    scatterMoveY = 50,
+    legendMoveX = 650,
+    legendMoveY = 600;
 
 // These colours map to a 3x3 grid of terciles for each of the two data items, life expectancy & social grade
 let colourMapping = [['#574249', '#627f8c', '#64acbe'],
@@ -54,24 +67,18 @@ let scatterLines = [
     ];
 
     
-let scatterWidth = 500,
-    scatterHeight = 500,
-    scatterMargin = {
-        t : 50,
-        b : 30,
-        l : 30,
-        r : 0
-    };
-let scatterMoveX = 650,
-    scatterMoveY = 50,
-    legendMoveX = 650,
-    legendMoveY = 600;
+
 
 
 let state2 = 'F-AB';
 
 var svg = d3.select("#mapCont").append("svg")
-    .attr("viewBox", `0 0 ${vbWidth} ${vbHeight}`)
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("id", "svg")
+    .style("border", "1px solid black")
+    .attr("viewBox", `-100 0 ${vbWidth} ${vbHeight}`)
+    .attr("preserveAspectRatio", "xMinYMin meet")
 let svg1 = svg.append("g")
     .attr("id", "map");
 
