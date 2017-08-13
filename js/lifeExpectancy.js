@@ -82,7 +82,7 @@ var svg = d3.select("#mapCont").append("svg")
 let svg1 = svg.append("g")
     .attr("id", "map");
 
-
+let startingText = 'Select a point on the map or scatterplot to see its counterpart on the other graphic. Alternatively select one of the boxes to the left to view more information about that category';
 let legendExplanation = {
     1 : {
         1 : 'People in these regions tend to live shorter lives than most people in the UK. These regions also have the lowest percentage of people in social grades A & B.',
@@ -151,9 +151,18 @@ function resetScatter(){
     return scatterPoints;
 }
 
+function resetLegend(){
+    d3.select('#text-rect')
+        .style('fill', '#fff')
+    d3.select('#legend-text')
+        .text(startingText)
+        .call(wrap, 340);
+}
+
 function reset(){
     resetMap();
     resetScatter();
+    resetLegend();
 }
 
 
@@ -344,11 +353,7 @@ function createLegend() {
     // G element to hold everything
     let textG = svg.append("g")
         .attr("transform", `translate(${legendMoveX + 120},${legendMoveY - 50})`)
-        .on('mouseleave', function(){
-            // resetMap();
-            // resetScatter();
-            // d3.select('#text-rect').style('fill', 'none')
-        });
+        .attr("id", "textG");
 
     // Rect to fill with colour to better highlight what has been selected
     textG.append('rect')
@@ -360,7 +365,6 @@ function createLegend() {
         .attr('id', 'text-rect');
 
     // Pre-fill the text here, but this will change
-    let startingText = 'Select a point on the map or scatterplot to see its counterpart on the other graphic. Alternatively select one of the boxes to the left to view more information about that category';
     textG.append('text')
         .attr("width", scatterWidth - legendWidth)
         .attr("height", legendHeight)
@@ -394,6 +398,23 @@ function createLegend() {
                 .on('click', legendSelection);
             }
         }
+
+
+    // Rect to fill with colour to better highlight what has been selected
+    textG.append("text")
+            .text("Reset")
+            .attr("transform", `translate(${282}, ${109})`);
+
+    let resetButton = textG.append('rect')
+        .attr("transform", `translate(${250}, ${95})`)
+        .attr("height", 18)
+        .attr("width", 100)
+        .attr("rx", 2)
+        .attr("ry", 2)
+        .style("fill-opacity", 0)
+        .style("stroke", "black")
+        .attr('id', 'resetButton')
+        .on('click', reset);
     }
 
 
