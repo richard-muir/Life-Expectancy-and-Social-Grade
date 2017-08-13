@@ -82,6 +82,7 @@ var svg = d3.select("#mapCont").append("svg")
 let svg1 = svg.append("g")
     .attr("id", "map");
 
+let initialDescriptionText = "Click on a region on the map or a point on the scatterplot to find out more about the life expectancy and social grade in that region"
 let startingText = 'Select a point on the map or scatterplot to see its counterpart on the other graphic. Alternatively select one of the boxes to the left to view more information about that category';
 let legendExplanation = {
     1 : {
@@ -132,6 +133,14 @@ function wrap(text, width) {
   });
 }
 
+
+function titleCase (sentence) {
+    return sentence.split(' ').map(
+        function (s) {
+            return s[0].toUpperCase() + s.substring(1).toLowerCase()      
+        }).join(' ') ;
+}
+
 function resetMap(){
     // Set all of the map colours & lines back to their original
     let mapPoints = d3.selectAll('.subunit')
@@ -155,8 +164,12 @@ function resetLegend(){
     d3.select('#text-rect')
         .style('fill', '#fff')
     d3.select('#legend-text')
+        .style('font-family', 'Droid Sans')
         .text(startingText)
         .call(wrap, 340);
+    d3.select('#DataDescription')
+        .text(initialDescriptionText)
+        .call(wrap, 340)
 }
 
 function reset(){
@@ -171,6 +184,7 @@ function legendSelection(){
         soc = Number(this.id.substring(8, 9)) + 1;
     let text = legendExplanation[exp][soc]; // Use them to get the explanation
     let t = d3.select('#legend-text') // Populate the text-box with the explanation
+        .style('font-family', 'Droid Sans')
         .text(text)
         .call(wrap, 350);
 
@@ -206,6 +220,8 @@ function getBoundingBoxCenter (selection) {
 }
 
 function connectElements(d, src, dest, srcTranslate, destTranslate){
+    updateDescription(d, src);
+
     let resetFuncLookup = {
             ".dot" : resetScatter,
             ".subunit" : resetMap,
@@ -260,12 +276,13 @@ queue()
         makeRegionMap(ukRegions);
         createScatter(mapData);
         createLegend();
+        createDescription();
     });
 
 
 // Make the map
 let projection = d3.geoAlbers()
-    .center([5.0, 53.5])
+    .center([7.0, 53.5])
     .rotate([4.4, 0])
     .parallels([50, 60])
     .scale(6000),
@@ -285,44 +302,46 @@ function makeCountryMap(countryData) {
         .attr("d", path);
 }
 
+function combineRegions(id, name, set, regionData){
+    // Filter all the regions to just the two we want, then combine
+    let region = topojson.merge(regionData, regionData.objects.lad.geometries.filter(function(d) {
+        return set.has(d.id);
+    }));
+    // Set the ID & properties of the new region
+    region.id = id;
+    region.properties = {
+        'LAD13NM' : name
+    }
+    // Add it to the map
+    svg1.append("path")
+        .datum(region)
+        .attr("class", "subunit E")
+        .attr("id", region.id)
+        .attr("d", path)
+        .attr("stroke", "#333")
+        .attr("stroke-width", 0.75);
+    }
 
 function makeRegionMap(regionData) {
     let cornwall = d3.set(['E06000052', 'E06000053']),  // Cornwall & hackney are being annoying
         hackney = d3.set(['E09000001', 'E09000012']);
 
-    function combineRegions(id, name, set){
-        // Filter all the regions to just the two we want, then combine
-        let region = topojson.merge(regionData, regionData.objects.lad.geometries.filter(function(d) {
-            return set.has(d.id);
-        }));
-        // Set the ID & properties of the new region
-        region.id = id;
-        region.properties = {
-            'LAD13NM' : name
-        }
-        // Add it to the map
-        svg1.append("path")
-            .datum(region)
-            .attr("class", "subunit E")
-            .attr("id", region.id)
-            .attr("d", path)
-            .attr("stroke", "#333")
-            .attr("stroke-width", 0.75);
-    }
-    combineRegions('E06000052', 'Cornwall and Isles of Scilly', cornwall);
-    combineRegions('E09000001', 'Hackney and City of London', hackney);
-
     // Draws the regions
     svg1.selectAll(".subunit")
         .data(topojson.feature(regionData, regionData.objects.lad).features.filter(function(d) {
+            console.log(d.id, d.properties.LAD13NM, d.properties.LAD13CD)
             // Cornwall & hackney are being annoying, need to exclude and draw later. Also no scotland.
             return !cornwall.has(d.id) && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
+
+            
         }))
         .enter().append("path")
         .attr("class", function(d) {return `subunit ${d.id[0]} ${d.id.slice(0, 3)}`;})
         .attr("d", path)
         .attr("stroke", "#333")
         .attr("stroke-width", 0.75);
+    combineRegions('E06000052', 'Cornwall and Isles of Scilly', cornwall, regionData);
+    combineRegions('E09000001', 'Hackney and City of London', hackney, regionData);
 
     updateMap();
 
@@ -370,6 +389,7 @@ function createLegend() {
         .attr("height", legendHeight)
         .attr("id", "legend-text")
         .text(startingText)
+        .style('font-family', 'Droid Sans')
         .call(wrap, 340);
     // G to hold the squares
     key = textG.append("g")
@@ -403,11 +423,12 @@ function createLegend() {
     // Rect to fill with colour to better highlight what has been selected
     textG.append("text")
             .text("Reset")
-            .attr("transform", `translate(${282}, ${109})`);
+            .style('font-family', 'Droid Sans')
+            .attr("transform", `translate(${282}, ${110})`);
 
     let resetButton = textG.append('rect')
         .attr("transform", `translate(${250}, ${95})`)
-        .attr("height", 18)
+        .attr("height", 19)
         .attr("width", 100)
         .attr("rx", 2)
         .attr("ry", 2)
@@ -416,6 +437,50 @@ function createLegend() {
         .attr('id', 'resetButton')
         .on('click', reset);
     }
+
+function createDescription(){
+    let descCont = svg.append("g")
+        .attr('transform', `translate(${ 260 },${ 30 })`);
+    
+    descCont.append("text")
+        .attr('id', 'DataDescription')
+        .text(initialDescriptionText)
+        .style('font-family', 'Droid Sans')
+        .call(wrap, 340);
+}
+
+
+function updateDescription(data, src){
+    let dataPoint;
+    if (src === '.dot'){
+        dataPoint = data;
+    }
+    else{
+        dataPoint = d3.selectAll('.dot').filter(function(e){return e.LAD13CD === data.id}).data()[0]
+    }
+
+    let id = dataPoint.id,
+        name = titleCase(dataPoint.LAD13NM),
+        lifeExpectancyF = dataPoint['Female Life Expectancy 2010-2012'],
+        lifeExpectancyM = dataPoint['Male Life Expectancy 2010-2012'],
+        socGradeAB = dataPoint['Approximated social grade AB'],
+        maleTercile = dataPoint.MaleLifeExp,
+        femaleTercile = dataPoint.FemaleLifeExp, 
+        socGradeTercile = dataPoint.SocialGradeAB;
+
+
+    let lookup = {
+        0 : 'lower than the UK average',
+        1 : 'about the same as the rest of the UK',
+        2 : 'higher than the UK average'
+    }
+
+    let replacementText = `In ${name} men can expect to live, on average, ${lifeExpectancyM} years, and women ${lifeExpectancyF}. ${(socGradeAB*100).toFixed(1)}% of people here are in Social Grades A & B which is ${lookup[socGradeTercile]}`
+    d3.select('#DataDescription')
+        .text(replacementText)
+        .call(wrap, 340)
+
+}
 
 
 
@@ -506,57 +571,5 @@ function createScatter(data){
         })
         .on("click",  function(d){connectElements(d, '.dot', '.subunit', [scatterMoveX, scatterMoveY], [0,0]);});
 
-
-
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function isInteger(x) {
-    return x % 1 === 0;
-}
-
-
-const compareArrays = (a1, a2) => {
-    return (a1.length == a2.length) && a1.every(function(element, index) {
-        return element === a2[index];
-    });
-};
-
-const getXAndYVals = (dataIn) => {
-    let xValues = [],
-        yValues = [];
-    for (let k in Object.keys(dataIn)) {
-        key = Object.keys(dataIn)[k]
-        if (isInteger(key.slice(0, 4))) {
-            xValues.push(key);
-            yValues.push(dataIn[key]);
-        }
-    }
-    return [xValues, yValues];
-};
-
-const splitAndCapitalise = (str) => {
-    str = str.replace(" UA", "");
-    str = str.split("/")[0];
-    str = str.toLowerCase();
-    str = str.split(" ")
-    for (var i = 0; i < str.length; i++) {
-        str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
-    }
-    return str.join(" ");
-
-}
