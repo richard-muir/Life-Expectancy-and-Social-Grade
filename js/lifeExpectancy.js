@@ -325,15 +325,13 @@ function updateMap() {
 }
 
 function makeRegionMap(regionData) {
-    let //cornwall = d3.set(['E06000052', 'E06000053']),  // Cornwall & hackney are being annoying
-        hackney = d3.set(['E09000001', 'E09000012']);
-
+    let hackney = d3.set(['E09000001', 'E09000012']);
     // Draws the regions
     svg1.selectAll(".subunit")
         .data(topojson.feature(regionData, regionData.objects.lad).features.filter(function(d) {
             console.log(d.id, d.properties.LAD13NM)
-            // Cornwall & hackney are being annoying, need to exclude and draw later. Also no scotland.
-            //return !cornwall.has(d.id) && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
+            // Hackney & the isles of scilly are being annoying, need to exclude scilly altogether
+            // and combine hackney & city of london together to draw later. Also no scotland.
             return d.id != 'E06000053' && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
         }))
         .enter().append("path")
@@ -341,7 +339,7 @@ function makeRegionMap(regionData) {
         .attr("d", path)
         .attr("stroke", "#333")
         .attr("stroke-width", 0.75);
-    //combineRegions('E06000052', 'Cornwall and Isles of Scilly', cornwall, regionData);
+    // Draw the combined hackney & city of london bit
     combineRegions('E09000001', 'Hackney and City of London', hackney, regionData);
     updateMap();
 }
