@@ -260,7 +260,7 @@ function connectElements(d, src, dest, srcTranslate, destTranslate){
 queue()
     .defer(d3.json, "data/lifeExp/uk.json") // UK Country shapefile
     .defer(d3.json, "data/lifeExp/topo_ladall.json") // UK Region shapefile
-    .defer(d3.json, "data/LifeExpAndSocialGrade.json")
+    .defer(d3.json, "data/lifeExp/LifeExpAndSocialGrade.json")
     .await(function(error, ukCountries, ukRegions, socialGrade){
         mapData = socialGrade;
         makeCountryMap(ukCountries);
@@ -329,7 +329,6 @@ function makeRegionMap(regionData) {
     // Draws the regions
     svg1.selectAll(".subunit")
         .data(topojson.feature(regionData, regionData.objects.lad).features.filter(function(d) {
-            console.log(d.id, d.properties.LAD13NM)
             // Hackney & the isles of scilly are being annoying, need to exclude scilly altogether
             // and combine hackney & city of london together to draw later. Also no scotland.
             return d.id != 'E06000053' && !hackney.has(d.id) && d.id.substring(0, 1) !== 'S';
